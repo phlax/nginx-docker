@@ -1,0 +1,47 @@
+# https://travis-ci.org/#!/phlax/nginx-docker
+dist: trusty
+sudo: true
+language: python
+services:
+  - docker
+
+before_install:
+  - "echo '{\"storage-driver\": \"overlay2\"}' | sudo tee /etc/docker/daemon.json"
+  - sudo service docker restart
+
+install:
+  - pip install -U docker-compose
+  - docker-compose build nginx
+
+script:
+
+  # set the environment
+  - echo "COMPOSE_FILE=./example/docker-compose.yml" > ./.env
+
+  - docker-compose up -d nginx
+
+  - curl http://localhost:8000
+
+  - docker-compose exec nginx sh -c 'echo $NGINX_TEMPLATES_0'
+  - docker-compose exec nginx sh -c 'echo $NGINX_SITES_0'
+
+  - docker-compose exec nginx sh -c 'echo $NGINX_TEMPLATES_1'
+  - docker-compose exec nginx sh -c 'echo $NGINX_SITES_1'
+
+  - docker-compose exec nginx ls /etc/nginx/conf.d/
+  - docker-compose exec nginx cat /etc/nginx/conf.d/default.conf
+  - docker-compose exec nginx cat /etc/nginx/conf.d/foo.com.conf
+
+  - "curl -H 'Host: foo.com' http://localhost:8000"
+
+  - docker-compose logs nginx
+
+  - docker-compose stop nginx
+
+  - docker-compose ps
+
+
+after_success:
+
+  - docker login -u phlax -p "$DOCKER_PASSWORD"
+  - docker push phlax/nginx
