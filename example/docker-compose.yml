@@ -1,0 +1,15 @@
+# docker-compose for phlax/nginx
+#
+version: "2.4"
+services:
+
+  nginx:
+    image: phlax/nginx
+    ports:
+    - 8000:80
+    environment:
+    - NGINX_TEMPLATES_1=special
+    - NGINX_SITES_1=foo.com,bar.com
+    volumes:
+    - ./request.py:/etc/nginx/request.py
+    - ./templates:/etc/nginx/templates
