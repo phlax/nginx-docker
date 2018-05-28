@@ -35,3 +35,6 @@ ENV NGINX_TEMPLATES_0=default
 RUN echo "load_module modules/ngx_python_module.so;\npython_include configure.py;\n$(cat /etc/nginx/nginx.conf)" > /etc/nginx/nginx.conf
 
 COPY ./configure.py /etc/nginx/configure.py
+COPY ./wrapper.sh /usr/local/bin/wrapper.sh
+
+CMD ["/usr/local/bin/wrapper.sh"]
